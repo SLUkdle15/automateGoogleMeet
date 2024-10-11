@@ -1,36 +1,29 @@
-import {Builder, By, until} from 'selenium-webdriver';
-import chrome from 'selenium-webdriver/chrome.js';
-import {cp, rm, readFile, readdir} from 'fs/promises';
+import {By, until} from 'selenium-webdriver';
+import {rm, readFile, readdir} from 'fs/promises';
 import axios from "axios";
+import {sp} from './constants.js'
 
 //selenium + chrome, host chat-api-dev.campdi.vn
 //FRecode extension for chrome
 //trick lo clone user data to save login session
-export default async function (eventId, url, duration) {
+export default async function (driver, eventId, url, duration) {
     const endTimeSimulate = 10000
-    // Specify the path to ChromeDriver and Chrome user data directory
-    let userDataPath = 'C:/Users/leduc/AppData/Local/Google/Chrome/User Data';
-    let cloneUserDataPath = 'C:/Users/leduc/Desktop/v/' + new Date().getTime() + '_' + eventId;
-    let scriptPath = 'C:/Users/leduc/Downloads/FRecord/';
+
+    let scriptPath = sp;
     let meetingName = 'MeetingNote-' + url.substring(24)
     console.log(meetingName)
-    await cp(userDataPath, cloneUserDataPath, {recursive: true});
-
-    let options = new chrome.Options();
-    options.addArguments(`--user-data-dir=` + cloneUserDataPath);
-
-    let driver = await new Builder()
-        .forBrowser('chrome')
-        .setChromeOptions(options)
-        .build();
 
     try {
+        // new tab
+        await driver.switchTo().newWindow('tab');
         // Perform actions with the WebDriver, e.g., navigate to a page
         await driver.get(url);
 
         await driver.wait(until.elementIsVisible(driver.findElement(By.xpath("//button[span='Join now']"))), 600000)
 
         await driver.findElement(By.xpath("//button[span='Join now']")).click();
+    } catch (error) {
+        console.error(error);
     } finally {
         // Quit the driver
         setTimeout(async function () {
