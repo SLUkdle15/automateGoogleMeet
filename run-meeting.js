@@ -1,29 +1,30 @@
 import {Builder, By, until} from 'selenium-webdriver';
 import {rm, readFile, readdir, cp} from 'fs/promises';
 import axios from "axios";
-import {sp} from './constants.js'
+import {cudp, sp, udp} from './constants.js'
 import {delay} from "./utils.js";
 import chrome from "selenium-webdriver/chrome.js";
+import puppeteer from "puppeteer";
 
-//selenium + chrome, host chat-api-dev.campdi.vn
-//FRecode extension for chrome
-//trick lo clone user data to save login session
 export async function runSeparateBrowserInstances(eventId, url, duration) {
     const endTimeSimulate = 10000;
-    // Specify the path to ChromeDriver and Chrome user data directory
-    let userDataPath = 'C:/Users/leduc/AppData/Local/Google/Chrome/User Data';
-    let cloneUserDataPath = 'C:/Users/leduc/Desktop/v/' + new Date().getTime() + '_' + eventId;
+    let userDataPath = udp;
+    let cloneUserDataPath = cudp + new Date().getTime() + '_' + eventId;
     let scriptPath = sp;
     let meetingName = 'MeetingNote-' + url.substring(24)
     console.log(meetingName)
     await cp(userDataPath, cloneUserDataPath, {recursive: true});
-    let options = new chrome.Options();
-    options.addArguments(`--user-data-dir=` + cloneUserDataPath);
 
-    let driver = await new Builder()
-        .forBrowser('chrome')
-        .setChromeOptions(options)
-        .build();
+    const browser = await puppeteer.launch({
+        headless: false,
+        args: ['--user-data-dir=' + cloneUserDataPath],
+    })
+    // let options = new chrome.Options();
+    // options.addArguments(`--user-data-dir=` + cloneUserDataPath);
+    // let driver = await new Builder()
+    //     .forBrowser('chrome')
+    //     .setChromeOptions(options)
+    //     .build();
 
     try {
         // Perform actions with the WebDriver, e.g., navigate to a page
@@ -91,7 +92,7 @@ export async function runMultipleTabs(driver, url, duration) {
         await driver.wait(until.elementIsVisible(driver.findElement(By.xpath("//button[span='Join now']"))), 600000);
         await driver.findElement(By.xpath("//button[span='Join now']")).click();
         // confirm meet connection
-        await delay(4000)
+        await delay(4000);
     } catch (error) {
         console.error(error);
     } finally {
