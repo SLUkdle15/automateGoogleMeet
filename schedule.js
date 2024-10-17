@@ -1,6 +1,6 @@
 import {ToadScheduler, SimpleIntervalJob, AsyncTask} from 'toad-scheduler';
 import select from "./query/select.js";
-import {cudp, MeetChoice, udp} from "./constants.js";
+import {cudp, Choice, udp} from "./constants.js";
 import {cp} from "fs/promises";
 import chrome from "selenium-webdriver/chrome.js";
 import {Builder} from "selenium-webdriver";
@@ -15,7 +15,7 @@ const task = new AsyncTask(
         const results = await select();
         const meetChoice = 1; // 1 or 2
         switch (meetChoice) {
-            case MeetChoice.SeparateBrowserInstances:
+            case Choice.SeparateBrowserInstances:
                 for (let i = 0; i < results.length; i++) {
                     const meeting = results[i];
                     console.log("meeting about to start id=" + meeting.id + " url=" + meeting.meet_url);
@@ -29,7 +29,7 @@ const task = new AsyncTask(
                     updateMeetingStarted(meeting.id);
                 }
                 break;
-            case MeetChoice.MultipleTabs:
+            case Choice.MultipleTabs:
                 let userDataPath = udp;
                 let cloneUserDataPath = cudp + new Date().getTime();
                 await cp(userDataPath, cloneUserDataPath, {recursive: true});
