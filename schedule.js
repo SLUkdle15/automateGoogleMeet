@@ -5,7 +5,7 @@ import {cp} from "fs/promises";
 import chrome from "selenium-webdriver/chrome.js";
 import {Builder} from "selenium-webdriver";
 import updateMeetingStarted from "./query/updateMeetingStarted.js";
-import {runMultipleTabs, runSeparateBrowserInstances} from "./run-meeting.js";
+import { runSeparateBrowserInstancesUsingPuppeteer } from "./test2.js";
 
 const scheduler = new ToadScheduler();
 
@@ -23,10 +23,10 @@ const task = new AsyncTask(
                         continue;
                     }
                     const duration = new Date(meeting.end_time) - new Date(meeting.start_time);
-                    await runSeparateBrowserInstances(meeting.id_event, meeting.meet_url, duration)
-
-                    // set status to meeting started
+                    //await runSeparateBrowserInstances(meeting.id_event, meeting.meet_url, duration)
+                    runSeparateBrowserInstancesUsingPuppeteer(meeting.id_event, meeting.meet_url, duration)
                     updateMeetingStarted(meeting.id);
+                    // set status to meeting started
                 }
                 break;
             case Choice.MultipleTabs:
@@ -58,6 +58,6 @@ const task = new AsyncTask(
         console.log("Error at time " + err)
     }
 )
-const job = new SimpleIntervalJob({seconds: 10}, task);
+const job = new SimpleIntervalJob({seconds: 30}, task);
 
 scheduler.addSimpleIntervalJob(job);
