@@ -1,12 +1,15 @@
 import puppeteer from "puppeteer";
-import {Choice, cudp, ep, udp} from "./constants.js";
-import {cp} from "fs/promises";
-import {delay} from "./utils.js"
+import {Choice, cudp, ep, udp, sp} from "./constants.js";
+import {rm, readFile, readdir, cp} from 'fs/promises';
+import {delay} from "./utils.js";
+import axios from "axios";
 
 export async function runSeparateBrowserInstancesUsingPuppeteer(eventId, url, duration) {
     let userDataPath = udp;
     let time = new Date().getTime();
     let choice = 1;
+    let scriptPath = sp;
+    let meetingName = 'MeetingNote-' + url.substring(24)
     switch (choice) {
         case Choice.SeparateBrowserInstances:
                 let cloneUserDataPath = cudp + time + '_' + eventId;
@@ -61,8 +64,8 @@ export async function runSeparateBrowserInstancesUsingPuppeteer(eventId, url, du
                                 console.error("failed" + error);
                             }
 
-                        }, 3000)
-                    }, 10000);
+                        }, 20000)
+                    }, 20000);
                 }, 30000 + duration);
             break;
 //        case Choice.MultipleTabs:
