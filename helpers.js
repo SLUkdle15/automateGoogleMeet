@@ -7,7 +7,7 @@ export const userDataPath = 'C:\\Users\\' + username + '\\AppData\\Local\\Google
 export const cloneUserDataDir = 'D:\\v\\';
 export const scriptPath = 'C:\\Users\\' + username + '\\Downloads\\FRecord\\';
 export const Choice = {
-    SeparateBrowserInstances: 1,
+    SeparateInstances: 1,
     MultipleTabs: 2
 }
 export const links = [
@@ -17,6 +17,11 @@ export const links = [
 ]
 export const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+/**
+ * @example 'MeetingNote-cya-dbkb-puh at 10-14-2024, 05-03 PM.txt'
+ * @description This will detect MM-DD-YYY, HH-MM and (AM or PM)
+ * @type {RegExp}
+ */
 const regExp = /(\d\d)-(\d\d)-(\d\d\d\d),\s(\d\d)-(\d\d)\s(AM|PM)/gm;
 const getSummary = async (meetingName) => {
     const files = await readdir(scriptPath, {withFileTypes: true});

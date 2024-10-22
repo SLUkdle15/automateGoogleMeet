@@ -1,8 +1,8 @@
 import {Builder, By, until} from 'selenium-webdriver';
 import {rm, readFile, readdir, cp} from 'fs/promises';
 import axios from "axios";
-import {cloneUserDataDir, scriptPath, userDataPath} from './helpers.js'
-import {delay} from "./helpers.js";
+import {cloneUserDataDir, scriptPath, userDataPath} from '../helpers.js'
+import {delay} from "../helpers.js";
 import chrome from "selenium-webdriver/chrome.js";
 import puppeteer from "puppeteer";
 

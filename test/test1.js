@@ -1,4 +1,4 @@
-import runMeeting from "./run-meeting.js"
+import runMeeting from "../run_meeting/OLDrun-meeting.js"
 import fs from 'fs';
 import {readFile} from "fs/promises";
 
