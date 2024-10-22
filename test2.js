@@ -1,72 +1,37 @@
-import puppeteer from "puppeteer";
-import {Choice, cudp, ep, udp, sp} from "./constants.js";
-import {rm, readFile, readdir, cp} from 'fs/promises';
-import {delay} from "./utils.js";
-import axios from "axios";
+import puppeteer from 'puppeteer';
+import {Choice, cloneUserDataDir, executablePath, userDataPath, postSummary, delay} from './helpers.js';
+import {rm, cp} from 'fs/promises';
 
 export async function runSeparateBrowserInstancesUsingPuppeteer(eventId, url, duration) {
-    let userDataPath = udp;
     let time = new Date().getTime();
     let choice = 1;
-    let scriptPath = sp;
-    let meetingName = 'MeetingNote-' + url.substring(24)
+    let meetingName = 'MeetingNote-' + url.substring(24, 36);
     switch (choice) {
         case Choice.SeparateBrowserInstances:
-                let cloneUserDataPath = cudp + time + '_' + eventId;
-                await cp(userDataPath, cloneUserDataPath, {recursive: true});
-                const browser = await puppeteer.launch({
-                    headless: false,
-                    executablePath: ep,
-                    userDataDir: cloneUserDataPath,
-                    ignoreDefaultArgs: [
-                        '--mute-audio',
-                        '--disable-extensions',
-                    ],
-                    defaultViewport: null,
-                });
-                const page = await browser.newPage();
-                await page.goto(url);
-                await page.locator('xpath///button[span=\'Join now\']').click();
-                setTimeout(async function () {
-                    await delay(10000);
-                    page.locator('xpath///button[@aria-label=\'Leave call\']').click();
-                    setTimeout(async function () {
-                        browser.close();
-
-                        setTimeout(async function () {
-                            await rm(cloneUserDataPath, {recursive: true});
-
-                            //fs get all files in directory
-                            const files = await readdir(scriptPath, {withFileTypes: true});
-                            const txtFiles =
-                                files.filter(file => file.isFile() && file.name.startsWith(meetingName) && file.name.endsWith('.txt'))
-                                    .sort((a, b) => b.mtime - a.mtime)
-                                    .at(0);
-
-                            console.log(txtFiles.name)
-                            //read txt file
-                            const content = await readFile(scriptPath + txtFiles.name, 'utf8');
-                            //console.log(content)
-                            //submit data
-                            const options = {
-                                method: 'POST',
-                                url: 'http://chat-api-dev.campdi.vn/api/meeting/summary',
-                                data: {
-                                    "eventId": eventId,
-                                    "summary": content
-                                }
-                            };
-
-                            try {
-                                const {data} = await axios.request(options);
-                                console.log(data);
-                            } catch (error) {
-                                console.error("failed" + error);
-                            }
-
-                        }, 20000)
-                    }, 20000);
-                }, 30000 + duration);
+            let cloneUserDataPath = cloneUserDataDir + time + '_' + eventId;
+            await cp(userDataPath, cloneUserDataPath, {recursive: true});
+            const browser = await puppeteer.launch({
+                headless: false,
+                executablePath: executablePath,
+                userDataDir: cloneUserDataPath,
+                ignoreDefaultArgs: [
+                    '--mute-audio',
+                    '--disable-extensions',
+                ],
+                defaultViewport: null,
+            });
+            // TODO: close about:blank tab that was initially opened by default
+            // open a new tab, go to the meeting url and click join
+            const page = await browser.newPage();
+            await page.goto(url);
+            await page.locator('xpath///button[span=\'Join now\']').click();
+            await delay(duration + 30000); // wait for specified meeting duration + additional 30s before leaving the call TODO: why 30s
+            await page.locator('xpath///button[@aria-label=\'Leave call\']').click(); // click leave
+            await delay(20000); // wait for FRecord output before closing the browser instance
+            await browser.close();
+            await delay(10000); // wait for browser closure before deleting the cloned userData and post the summary
+            await rm(cloneUserDataPath, {recursive: true});
+            await postSummary(eventId, meetingName);
             break;
 //        case Choice.MultipleTabs:
 //            let cloneUserDataPath = cudp + time;

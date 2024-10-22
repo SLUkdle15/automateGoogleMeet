@@ -1,16 +1,14 @@
 import {Builder, By, until} from 'selenium-webdriver';
 import {rm, readFile, readdir, cp} from 'fs/promises';
 import axios from "axios";
-import {cudp, sp, udp} from './constants.js'
-import {delay} from "./utils.js";
+import {cloneUserDataDir, scriptPath, userDataPath} from './helpers.js'
+import {delay} from "./helpers.js";
 import chrome from "selenium-webdriver/chrome.js";
 import puppeteer from "puppeteer";
 
 export async function runSeparateBrowserInstances(eventId, url, duration) {
     const endTimeSimulate = 10000;
-    let userDataPath = udp;
-    let cloneUserDataPath = cudp + new Date().getTime() + '_' + eventId;
-    let scriptPath = sp;
+    let cloneUserDataPath = cloneUserDataDir + new Date().getTime() + '_' + eventId;
     let meetingName = 'MeetingNote-' + url.substring(24)
     console.log(meetingName)
     await cp(userDataPath, cloneUserDataPath, {recursive: true});

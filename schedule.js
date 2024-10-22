@@ -1,6 +1,6 @@
 import {ToadScheduler, SimpleIntervalJob, AsyncTask} from 'toad-scheduler';
 import select from "./query/select.js";
-import {cudp, Choice, udp} from "./constants.js";
+import {cloneUserDataDir, Choice, userDataPath} from "./helpers.js";
 import {cp} from "fs/promises";
 import chrome from "selenium-webdriver/chrome.js";
 import {Builder} from "selenium-webdriver";
@@ -30,8 +30,7 @@ const task = new AsyncTask(
                 }
                 break;
             case Choice.MultipleTabs:
-                let userDataPath = udp;
-                let cloneUserDataPath = cudp + new Date().getTime();
+                let cloneUserDataPath = cloneUserDataDir + new Date().getTime();
                 await cp(userDataPath, cloneUserDataPath, {recursive: true});
 
                 let options = new chrome.Options();
