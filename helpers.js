@@ -1,7 +1,7 @@
 import {readdir, readFile} from "fs/promises";
 import axios from "axios";
 
-const username = 'At Nguyen'; // change this to ur actual Windows username
+const username = 'leduc'; // change this to ur actual Windows username
 export const executablePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
 export const userDataPath = 'C:\\Users\\' + username + '\\AppData\\Local\\Google\\Chrome\\User Data\\';
 export const cloneUserDataDir = 'D:\\v\\';
@@ -39,7 +39,7 @@ const getSummary = async (meetingName) => {
     return await readFile(scriptPath + summaryFile.name, 'utf8');
 };
 export const postSummary = async (eventId, meetingName) => {
-    const summary = getSummary(meetingName);
+    const summary = await getSummary(meetingName);
     const options = {
         method: 'POST',
         url: 'http://chat-api-dev.campdi.vn/api/meeting/summary',

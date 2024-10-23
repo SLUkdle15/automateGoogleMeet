@@ -6,7 +6,9 @@ export async function runSeparateInstancesUsingPuppeteer(eventId, url, duration)
     let time = new Date().getTime();
     let meetingName = 'MeetingNote-' + url.substring(24, 36);
     let cloneUserDataPath = cloneUserDataDir + time + '_' + eventId;
+    console.log('cloning user data');
     await cp(userDataPath, cloneUserDataPath, {recursive: true});
+    console.log('launching instance for' + url);
     const browser = await puppeteer.launch({
         headless: false,
         executablePath: executablePath,
@@ -18,6 +20,7 @@ export async function runSeparateInstancesUsingPuppeteer(eventId, url, duration)
         defaultViewport: null,
     });
     // open a new tab, go to the meeting url and click join
+    console.log('opening new page');
     const page = await browser.newPage();
     await page.goto(url);
     await page.locator('xpath///button[span=\'Join now\']').click();
