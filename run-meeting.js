@@ -2,6 +2,7 @@ import {Builder, By, until} from 'selenium-webdriver';
 import chrome from 'selenium-webdriver/chrome.js';
 import {cp, rm, readFile, readdir} from 'fs/promises';
 import axios from "axios";
+import parsedDate from "./parse-date.js";
 
 //selenium + chrome, host chat-api-dev.campdi.vn
 //FRecode extension for chrome
@@ -11,9 +12,10 @@ export default async function (eventId, url, duration) {
     // Specify the path to ChromeDriver and Chrome user data directory
     let userDataPath = 'C:/Users/leduc/AppData/Local/Google/Chrome/User Data';
     let cloneUserDataPath = 'C:/Users/leduc/Desktop/v/' + new Date().getTime() + '_' + eventId;
-    let scriptPath = 'C:/Users/leduc/Downloads/FRecord/';
-    let meetingName = 'MeetingNote-' + url.substring(24)
-    console.log(meetingName)
+    let scriptPath = 'C:/Users/leduc/Downloads/Meowmo/';
+
+    let meetingName = 'Transcript-' + url.substring(24) + '-'
+    console.log("meeting name: " + meetingName)
     await cp(userDataPath, cloneUserDataPath, {recursive: true});
 
     let options = new chrome.Options();
@@ -47,14 +49,20 @@ export default async function (eventId, url, duration) {
                     //fs get all files in directory
                     const files = await readdir(scriptPath, {withFileTypes: true});
                     const txtFiles =
-                        files.filter(file => file.isFile() && file.name.startsWith(meetingName) && file.name.endsWith('.txt'))
-                            .sort((a, b) => b.mtime - a.mtime)
+                        files.filter(file => file.isFile() && file.name.includes(meetingName, 0))
+                            .sort((a, b) => {
+                                const timeA = a.name.substring(meetingName.length, a.name.length - 4) // remove .txt
+                                const timeB = b.name.substring(meetingName.length, b.name.length - 4)
+                                const dateA = parsedDate(timeA)
+                                const dateB = parsedDate(timeB)
+                                return dateB - dateA;
+                            })
                             .at(0);
 
                     console.log(txtFiles.name)
                     //read txt file
                     const content = await readFile(scriptPath + txtFiles.name, 'utf8');
-                    //console.log(content)
+                    console.log(content)
                     //submit data
                     const options = {
                         method: 'POST',
@@ -74,7 +82,7 @@ export default async function (eventId, url, duration) {
 
                 }, 3000)
 
-            }, 60000) //1min turn off call to quit driver wait for summary file
+            }, 60000) //1min turn off call to quit driver
 
         }, duration + 60000); // 1min on top of call
     }
