@@ -15,7 +15,7 @@ const task = new AsyncTask(
             console.log("meeting about to start id" + meeting.id + " url " + meeting.meet_url);
             if (new Date(meeting.start_time) < new Date()) {
                 const duration = new Date(meeting.end_time) - new Date(meeting.start_time);
-                console.log("duration is seconds, " + duration)
+                console.log("duration in millisecond seconds, " + duration)
                 runMeeting(meeting.id_event, meeting.meet_url, duration)
 
                 // set status to meeting started

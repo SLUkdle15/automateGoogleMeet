@@ -33,6 +33,24 @@ export default async function (eventId, url, duration) {
         await driver.wait(until.elementIsVisible(driver.findElement(By.xpath("//button[span='Join now']"))), 600000)
 
         await driver.findElement(By.xpath("//button[span='Join now']")).click();
+
+        let loop = true
+        // wait to admit newcomers
+        setTimeout(   function () {
+            loop = false
+        }, duration)
+
+        while (true) {
+            try {
+                console.log("wait to admit newcomers")
+                await driver.findElement(By.xpath("//button[@class='VfPpkd-LgbsSe VfPpkd-LgbsSe-OWXEXe-dgl2Hf ksBjEc lKxP2d LQeN7' and @jscontroller='soHxf']")).click()
+                console.log("oh yeah")
+            } catch (e) {
+                console.log("no newcomers")
+            }
+        }
+
+
     } finally {
         // Quit the driver
         setTimeout(async function () {
