@@ -36,11 +36,11 @@ export default async function (eventId, url, duration) {
 
         let loop = true
         // wait to admit newcomers
-        setTimeout(   function () {
+        setTimeout(function () {
             loop = false
         }, duration)
 
-        while (true) {
+        while (loop) {
             try {
                 console.log("wait to admit newcomers")
                 await driver.findElement(By.xpath("//button[@class='VfPpkd-LgbsSe VfPpkd-LgbsSe-OWXEXe-dgl2Hf ksBjEc lKxP2d LQeN7' and @jscontroller='soHxf']")).click()
@@ -50,8 +50,9 @@ export default async function (eventId, url, duration) {
             }
         }
 
-
+        console.log("its over")
     } finally {
+        console.log("finally")
         // Quit the driver
         setTimeout(async function () {
             await driver.wait(until.elementIsVisible(driver.findElement(By.xpath("//button[@aria-label='Leave call']"))), 10000)
