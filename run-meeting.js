@@ -8,14 +8,14 @@ import parsedDate from "./parse-date.js";
 //FRecode extension for chrome
 //trick lo clone user data to save login session
 export default async function (eventId, url, duration) {
-    const extendedTime = 60000;
     // Specify the path to ChromeDriver and Chrome user data directory
     let userDataPath = 'C:/Users/leduc/AppData/Local/Google/Chrome/User Data';
     let cloneUserDataPath = 'C:/Users/leduc/Desktop/v/' + new Date().getTime() + '_' + eventId;
     let scriptPath = 'C:/Users/leduc/Downloads/Meowmo/';
 
-    let meetingName = 'Transcript-' + url.substring(24) + '-'
-    console.log("meeting name: " + meetingName)
+    let meetingInitial = 'Transcript-' + url.substring(24) + '-'
+    console.log("meeting initial: " + meetingInitial)
+
     await cp(userDataPath, cloneUserDataPath, {recursive: true});
 
     let options = new chrome.Options();
@@ -52,8 +52,8 @@ export default async function (eventId, url, duration) {
         }
     } finally {
         console.log("finally")
-        // Quit the driver
 
+        // Quit the driver
         await driver.wait(until.elementIsVisible(driver.findElement(By.xpath("//button[@aria-label='Leave call']"))), 10000)
 
         await driver.findElement(By.xpath("//button[@aria-label='Leave call']")).click()
@@ -64,23 +64,24 @@ export default async function (eventId, url, duration) {
             setTimeout(async function () {
                 await rm(cloneUserDataPath, {recursive: true});
 
-                //fs get all files in directory
+                //fs get all files in script directory
                 const files = await readdir(scriptPath, {withFileTypes: true});
                 const txtFiles =
-                    files.filter(file => file.isFile() && file.name.includes(meetingName, 0))
+                    files.filter(file => file.isFile() && file.name.includes(meetingInitial, 0))
                         .sort((a, b) => {
-                            const timeA = a.name.substring(meetingName.length, a.name.length - 4) // remove .txt
-                            const timeB = b.name.substring(meetingName.length, b.name.length - 4)
+                            const timeA = a.name.substring(meetingInitial.length, a.name.length - 4) // remove .txt
+                            const timeB = b.name.substring(meetingInitial.length, b.name.length - 4)
                             const dateA = parsedDate(timeA)
                             const dateB = parsedDate(timeB)
                             return dateB - dateA;
-                        })
+                        }) //this sort could be overkill since meeting Initial is unique but Iam testing over and over again for a meeting
                         .at(0);
 
                 console.log(txtFiles.name)
                 //read txt file
                 const content = await readFile(scriptPath + txtFiles.name, 'utf8');
-                console.log(content)
+                //console.log(content)
+
                 //submit data
                 const options = {
                     method: 'POST',
